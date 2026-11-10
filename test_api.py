@@ -1,104 +1,94 @@
-"""
-test_api.py - Direct Async Endpoint & Integration Tests for FastAPI AuraStyle Backend
-Uses IsolatedAsyncioTestCase for robust native async testing without event loop conflicts.
+"""Integration tests for the current ZenithMart FastAPI application.
+
+The chatbot is mocked so the suite does not call the live Gemini API.
 """
 
 import os
-os.environ["OPENAI_API_KEY"] = "test-mock-key"
-
 import unittest
-from unittest.mock import patch, MagicMock
-from fastapi import HTTPException
-import json
+from uuid import uuid4
+from unittest.mock import patch
 
-from main import (
-    health_check,
-    serve_index,
-    chat_endpoint,
-    get_history_endpoint,
-    clear_session_endpoint,
-    get_logs_endpoint,
-    get_analytics_endpoint,
-    ChatRequest,
-    ClearSessionRequest,
-)
+os.environ.setdefault("GEMINI_API_KEY", "test-gemini-key")
+
+from fastapi.testclient import TestClient
 import database
+from main import app
 
-class TestFastAPIEndpoints(unittest.IsolatedAsyncioTestCase):
 
-    async def asyncSetUp(self):
+class TestZenithMartAPI(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.client = TestClient(app)
+
+    def setUp(self):
         database.init_db()
-        self.session_id = "api_test_session_456"
+        self.session_id = f"api-{uuid4()}"
 
-    async def asyncTearDown(self):
+    def tearDown(self):
         database.clear_session(self.session_id)
 
-    async def test_health_endpoint(self):
-        result = await health_check()
-        self.assertEqual(result["status"], "healthy")
-        self.assertIn("AuraStyle", result["service"])
-
-    async def test_index_page_serves_html(self):
-        response = await serve_index()
+    def test_health_endpoint(self):
+        response = self.client.get("/api/health")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("AuraStyle Support", response.body.decode("utf-8"))
-        self.assertIn("Virtual Assistant Aura", response.body.decode("utf-8"))
+        data = response.json()
+        self.assertEqual(data["status"], "ok")
+        self.assertIn("model", data)
+        self.assertIn("api_key_loaded", data)
 
-    async def test_empty_message_raises_400(self):
-        req = ChatRequest(session_id=self.session_id, message="   ")
-        with self.assertRaises(HTTPException) as ctx:
-            await chat_endpoint(req)
-        self.assertEqual(ctx.exception.status_code, 400)
-        self.assertIn("cannot be empty", ctx.exception.detail)
-
-    @patch("bot_engine.OpenAI")
-    async def test_chat_endpoint_success(self, mock_openai_cls):
-        mock_client = MagicMock()
-        mock_openai_cls.return_value = mock_client
-        mock_choice = MagicMock()
-        mock_choice.message.content = "Standard Ground takes 3 to 5 business days and is free on orders $75+."
-        mock_completion = MagicMock()
-        mock_completion.choices = [mock_choice]
-        mock_completion.usage.prompt_tokens = 410
-        mock_completion.usage.completion_tokens = 20
-        mock_completion.usage.total_tokens = 430
-        mock_client.chat.completions.create.return_value = mock_completion
-
-        req = ChatRequest(session_id=self.session_id, message="How fast is standard shipping?")
-        response = await chat_endpoint(req)
+    def test_storefront_is_served(self):
+        response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
-        
-        data = json.loads(response.body.decode("utf-8"))
-        self.assertIn("3 to 5 business days", data["response"])
-        self.assertIn("latency_ms", data)
-        self.assertEqual(data["tokens"]["total"], 430)
+        self.assertIn("text/html", response.headers.get("content-type", ""))
 
-    async def test_history_and_clear_endpoints(self):
-        database.log_interaction(
-            session_id=self.session_id,
-            user_message="Hello Aura",
-            bot_response="Hello! Welcome to AuraStyle Essentials.",
-            response_time_ms=120.0,
-            status="success"
+    @patch("main.bot_engine.generate_response")
+    def test_chat_endpoint_returns_engine_response(self, mock_generate):
+        mock_generate.return_value = {
+            "response": "Standard shipping takes 3-5 business days.",
+            "session_id": self.session_id,
+            "latency_ms": 125.5,
+            "status": "success",
+            "tokens": {"prompt": 100, "completion": 20, "total": 120},
+        }
+        response = self.client.post(
+            "/api/chat",
+            json={"message": "How long does shipping take?", "session_id": self.session_id},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("3-5 business days", response.json()["response"])
+        mock_generate.assert_called_once_with(
+            self.session_id, "How long does shipping take?"
         )
 
-        hist_data = await get_history_endpoint(self.session_id)
-        self.assertEqual(len(hist_data["history"]), 1)
-        self.assertEqual(hist_data["history"][0]["user_message"], "Hello Aura")
+    def test_chat_rejects_messages_over_max_length(self):
+        response = self.client.post(
+            "/api/chat",
+            json={"message": "x" * 1001, "session_id": self.session_id},
+        )
+        self.assertEqual(response.status_code, 422)
 
-        clear_data = await clear_session_endpoint(ClearSessionRequest(session_id=self.session_id))
-        self.assertEqual(clear_data["status"], "success")
+    def test_history_and_clear_endpoints(self):
+        database.log_interaction(
+            session_id=self.session_id,
+            user_message="Hello",
+            bot_response="Welcome to ZenithMart.",
+            response_time_ms=100.0,
+            status="success",
+        )
+        history = self.client.get(f"/api/history/{self.session_id}")
+        self.assertEqual(history.status_code, 200)
+        self.assertEqual(len(history.json()["history"]), 1)
 
-        hist_data_after = await get_history_endpoint(self.session_id)
-        self.assertEqual(len(hist_data_after["history"]), 0)
+        cleared = self.client.post("/api/clear", json={"session_id": self.session_id})
+        self.assertEqual(cleared.status_code, 200)
+        self.assertEqual(cleared.json()["status"], "cleared")
 
-    async def test_logs_and_analytics_endpoints(self):
-        logs_data = await get_logs_endpoint(limit=10)
-        self.assertIn("logs", logs_data)
+        history_after = self.client.get(f"/api/history/{self.session_id}")
+        self.assertEqual(history_after.json()["history"], [])
 
-        analytics_data = await get_analytics_endpoint()
-        self.assertIn("total_messages", analytics_data)
-        self.assertIn("avg_latency_ms", analytics_data)
+    def test_demo_product_endpoint(self):
+        response = self.client.get("/api/products")
+        self.assertEqual(response.status_code, 200)
+
 
 if __name__ == "__main__":
     unittest.main()
