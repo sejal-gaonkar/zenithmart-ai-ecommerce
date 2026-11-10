@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraStyle Support — Virtual Assistant Aura</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Marked.js for markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --user-bubble: #2563eb;
+      --user-text: #ffffff;
+      --bot-bubble: #f1f5f9;
+      --bot-text: #1e293b;
+      --badge-success: #10b981;
+      --badge-warning: #f59e0b;
+      --badge-error: #ef4444;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.07);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header */
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      z-index: 10;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-avatar {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 10px rgba(37,99,235,0.25);
+    }
+
+    .brand-info h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-info p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--badge-success);
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 0 2px rgba(16,185,129,0.2);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: var(--bg);
+      border-color: #cbd5e1;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Main Container */
+    .chat-layout {
+      flex: 1;
+      display: flex;
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      flex-direction: column;
+      height: calc(100vh - 73px);
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      scroll-behavior: smooth;
+    }
+
+    /* Message Bubbles */
+    .message-row {
+      display: flex;
+      gap: 12px;
+      max-width: 82%;
+    }
+
+    .message-row.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .message-row.bot {
+      align-self: flex-start;
+    }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .msg-avatar.bot-av {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    .msg-avatar.user-av {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .bubble-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .bubble {
+      padding: 13px 17px;
+      border-radius: var(--radius);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .message-row.user .bubble {
+      background: var(--user-bubble);
+      color: var(--user-text);
+      border-bottom-right-radius: 4px;
+    }
+
+    .message-row.bot .bubble {
+      background: var(--bot-bubble);
+      color: var(--bot-text);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    .bubble p:not(:last-child) {
+      margin-bottom: 8px;
+    }
+
+    .bubble ul, .bubble ol {
+      margin: 6px 0 6px 18px;
+    }
+
+    .bubble li {
+      margin-bottom: 4px;
+    }
+
+    .bubble code {
+      background: rgba(0,0,0,0.06);
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.88em;
+    }
+
+    .bubble table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 8px 0;
+      font-size: 0.85rem;
+    }
+
+    .bubble th, .bubble td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+      text-align: left;
+    }
+
+    .bubble th {
+      background: #e2e8f0;
+      font-weight: 600;
+    }
+
+    .meta-tag {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .message-row.user .meta-tag {
+      justify-content: flex-end;
+    }
+
+    .latency-pill {
+      background: #e2e8f0;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.68rem;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 12px 18px;
+      background: var(--bot-bubble);
+      border-radius: var(--radius);
+      width: fit-content;
+    }
+
+    .typing-dot {
+      width: 7px;
+      height: 7px;
+      background: #94a3b8;
+      border-radius: 50%;
+      animation: pulse 1.4s infinite ease-in-out both;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Suggestion Chips */
+    .chips-section {
+      padding: 0 24px 10px;
+    }
+
+    .chips-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .chips-grid {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+    }
+
+    .chip {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      color: var(--text);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .chip:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Input Bar */
+    .input-container {
+      padding: 16px 24px 20px;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+    }
+
+    .input-box {
+      display: flex;
+      gap: 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px 8px 6px 14px;
+      align-items: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-box:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+      background: #ffffff;
+    }
+
+    .input-box input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 0.94rem;
+      outline: none;
+      font-family: inherit;
+      color: var(--text);
+    }
+
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .send-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .send-btn:active {
+      transform: scale(0.96);
+    }
+
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Modal for SQLite Audit Logs */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 900px;
+      max-height: 85vh;
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .stat-card .label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .stat-card .value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 4px;
+    }
+
+    .logs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .logs-table th, .logs-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .logs-table th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .logs-table tr:hover td {
+      background: #f1f5f9;
+    }
+
+    .tag {
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .tag-success { background: #dcfce7; color: #15803d; }
+    .tag-refusal { background: #fee2e2; color: #b91c1c; }
+    .tag-uncovered { background: #fef3c7; color: #b45309; }
+    .tag-error { background: #f3e8ff; color: #7e22ce; }
+
+    /* Alert Banner */
+    .banner {
+      background: #fffbeb;
+      border-bottom: 1px solid #fde68a;
+      padding: 8px 20px;
+      font-size: 0.82rem;
+      color: #92400e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Optional API Status Banner -->
+  <div id="apiKeyBanner" class="banner" style="display: none;">
+    <span>Notice: OpenAI API Key is currently not detected or invalid. Responses will showcase graceful error handling. Add your key to <code>.env</code> to activate live API completions.</span>
+    <button class="btn" style="padding: 2px 8px; font-size: 0.75rem;" onclick="dismissBanner()">Dismiss</button>
+  </div>
+
+  <header>
+    <div class="brand-section">
+      <div class="brand-avatar">A</div>
+      <div class="brand-info">
+        <h1>AuraStyle Support <span style="font-size:0.75rem; font-weight:600; background:#e0e7ff; color:#3730a3; padding:2px 7px; border-radius:6px;">Virtual Agent Aura</span></h1>
+        <p><span class="status-dot"></span> Live Support • E-Commerce Assistant</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="openLogsModal()" title="Inspect SQLite Chat Logs & Metrics">
+        📊 SQLite Logs & Analytics
+      </button>
+      <button class="btn" onclick="clearSessionHistory()" title="Reset session conversation memory">
+        🔄 New Chat
+      </button>
+    </div>
+  </header>
+
+  <div class="chat-layout">
+    <div class="messages-container" id="messagesContainer">
+      <!-- Welcome message -->
+      <div class="message-row bot">
+        <div class="msg-avatar bot-av">A</div>
+        <div class="bubble-wrapper">
+          <div class="bubble">
+            <p><strong>Hello! I'm Aura</strong>, your dedicated customer support specialist for <strong>AuraStyle Essentials</strong>.</p>
+            <p>I can help you with order tracking, shipping options, our 30-day return policy, AuraClub loyalty rewards, warranty details, and connecting you to human support specialists.</p>
+            <p style="font-size:0.85rem; color:#475569;"><em>How may I assist you with your AuraStyle shopping experience today?</em></p>
+          </div>
+          <div class="meta-tag">Official Support • AuraStyle System</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Suggestion Chips -->
+    <div class="chips-section">
+      <div class="chips-title">Suggested Quick Questions & Test Scenarios</div>
+      <div class="chips-grid">
+        <button class="chip" onclick="sendQuickPrompt('What is your return policy and are returns free?')">📦 Return Policy & Fees</button>
+        <button class="chip" onclick="sendQuickPrompt('How fast is standard shipping and how can I get free shipping?')">🚚 Free Shipping Threshold</button>
+        <button class="chip" onclick="sendQuickPrompt('How do I earn and redeem AuraClub loyalty points?')">⭐ AuraClub Rewards</button>
+        <button class="chip" onclick="sendQuickPrompt('Can I cancel an order I placed 20 minutes ago?')">⏱️ Order Cancellation Window</button>
+        <button class="chip" onclick="sendQuickPrompt('Write me a Python script to scrape website prices.')">🛑 Out-of-Scope Test (Refusal)</button>
+        <button class="chip" onclick="sendQuickPrompt('Do you carry vintage 1970 neon motorcycle helmets?')">❓ In-Domain Uncovered Test (Honesty)</button>
+        <button class="chip" onclick="sendQuickPrompt('I want to speak with a human agent.')">🧑‍💼 Human Escalation</button>
+      </div>
+    </div>
+
+    <!-- Input Bar -->
+    <div class="input-container">
+      <form id="chatForm" onsubmit="handleSendMessage(event)">
+        <div class="input-box">
+          <input 
+            type="text" 
+            id="userInput" 
+            placeholder="Type your question about orders, shipping, returns, or products..." 
+            autocomplete="off" 
+          />
+          <button type="submit" class="send-btn" id="sendBtn" title="Send message">
+            <svg viewBox="0 0 24 24">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal for SQLite Logs & Analytics -->
+  <div class="modal-overlay" id="logsModal" onclick="closeLogsModalOnBackdrop(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>SQLite Chat Logs & System Analytics</h3>
+        <button class="btn" onclick="closeLogsModal()">✕ Close</button>
+      </div>
+      <div class="modal-body">
+        <div class="stats-row" id="statsRow">
+          <div class="stat-card">
+            <div class="label">Total Logged Messages</div>
+            <div class="value" id="statMessages">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Total Sessions</div>
+            <div class="value" id="statSessions">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Avg Latency</div>
+            <div class="value" id="statLatency">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Total Tokens Used</div>
+            <div class="value" id="statTokens">-</div>
+          </div>
+        </div>
+
+        <h4 style="margin: 16px 0 10px; font-size: 0.95rem;">Recent Conversations (chat_logs.db)</h4>
+        <div style="overflow-x: auto;">
+          <table class="logs-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Timestamp (UTC)</th>
+                <th>User Query</th>
+                <th>Bot Response</th>
+                <th>Latency</th>
+                <th>Tokens</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="logsTableBody">
+              <tr><td colspan="7" style="text-align:center; padding:20px;">Loading SQLite audit records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Generate or retrieve persistent Session ID
+    let currentSessionId = localStorage.getItem('aurastyle_session_id');
+    if (!currentSessionId) {
+      currentSessionId = 'sess_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+      localStorage.setItem('aurastyle_session_id', currentSessionId);
+    }
+
+    const messagesContainer = document.getElementById('messagesContainer');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    let isProcessing = false;
+
+    // Check health on startup
+    fetch('/api/health')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.api_key_configured) {
+          document.getElementById('apiKeyBanner').style.display = 'flex';
+        }
+      })
+      .catch(err => console.error('Health check failed', err));
+
+    function dismissBanner() {
+      document.getElementById('apiKeyBanner').style.display = 'none';
+    }
+
+    function sendQuickPrompt(promptText) {
+      if (isProcessing) return;
+      userInput.value = promptText;
+      handleSendMessage(new Event('submit'));
+    }
+
+    async function handleSendMessage(event) {
+      if (event) event.preventDefault();
+      const message = userInput.value.trim();
+      if (!message || isProcessing) return;
+
+      // Append user bubble
+      appendUserMessage(message);
+      userInput.value = '';
+      isProcessing = true;
+      sendBtn.disabled = true;
+
+      // Append typing indicator
+      const typingEl = showTypingIndicator();
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: currentSessionId,
+            message: message
+          })
+        });
+
+        const data = await response.json();
+        removeTypingIndicator(typingEl);
+
+        if (response.ok) {
+          appendBotMessage(data.response, data.latency_ms, data.status, data.tokens);
+        } else {
+          appendErrorMessage(data.detail || 'An error occurred while connecting to the server.');
+        }
+      } catch (error) {
+        removeTypingIndicator(typingEl);
+        appendErrorMessage('Network Error: Unable to communicate with the server backend.');
+      } finally {
+        isProcessing = false;
+        sendBtn.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    function appendUserMessage(text) {
+      const row = document.createElement('div');
+      row.className = 'message-row user';
+      row.innerHTML = `
+        <div class="msg-avatar user-av">U</div>
+        <div class="bubble-wrapper">
+          <div class="bubble">${escapeHtml(text)}</div>
+          <div class="meta-tag">You • Just now</div>
+        </div>
+      `;
+      messagesContainer.appendChild(row);
+      scrollToBottom();
+    }
+
+    function appendBotMessage(markdownText, latencyMs, status, tokens) {
+      const row = document.createElement('div');
+      row.className = 'message-row bot';
+      const parsedHtml = marked.parse(markdownText || '');
+      
+      let badgeHtml = '';
+      if (status === 'out_of_scope_refusal') {
+        badgeHtml = `<span class="tag tag-refusal">Out-of-Scope Refusal</span>`;
+      } else if (status === 'in_domain_uncovered') {
+        badgeHtml = `<span class="tag tag-uncovered">Honest "I don't know"</span>`;
+      } else if (status && status.includes('error')) {
+        badgeHtml = `<span class="tag tag-error">${status}</span>`;
+      }
+
+      const latencyBadge = latencyMs !== undefined ? `<span class="latency-pill">⚡ ${latencyMs}ms</span>` : '';
+      const tokensInfo = tokens && tokens.total ? ` • ${tokens.total} tokens` : '';
+
+      row.innerHTML = `
+        <div class="msg-avatar bot-av">A</div>
+        <div class="bubble-wrapper">
+          <div class="bubble">${parsedHtml}</div>
+          <div class="meta-tag">
+            <span>Aura</span>
+            ${latencyBadge}
+            ${badgeHtml}
+            <span>${tokensInfo}</span>
+          </div>
+        </div>
+      `;
+      messagesContainer.appendChild(row);
+      scrollToBottom();
+    }
+
+    function appendErrorMessage(errMsg) {
+      const row = document.createElement('div');
+      row.className = 'message-row bot';
+      row.innerHTML = `
+        <div class="msg-avatar bot-av" style="background:#fee2e2; color:#b91c1c;">!</div>
+        <div class="bubble-wrapper">
+          <div class="bubble" style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b;">
+            <strong>Notice:</strong> ${escapeHtml(errMsg)}
+          </div>
+          <div class="meta-tag"><span class="tag tag-error">System Error</span></div>
+        </div>
+      `;
+      messagesContainer.appendChild(row);
+      scrollToBottom();
+    }
+
+    function showTypingIndicator() {
+      const row = document.createElement('div');
+      row.className = 'message-row bot';
+      row.id = 'activeTypingIndicator';
+      row.innerHTML = `
+        <div class="msg-avatar bot-av">A</div>
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      `;
+      messagesContainer.appendChild(row);
+      scrollToBottom();
+      return row;
+    }
+
+    function removeTypingIndicator(el) {
+      if (el && el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
+    }
+
+    function scrollToBottom() {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    }
+
+    async function clearSessionHistory() {
+      if (!confirm('Start a fresh conversation? This clears memory for this session.')) return;
+      try {
+        await fetch('/api/session/clear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: currentSessionId })
+        });
+        currentSessionId = 'sess_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+        localStorage.setItem('aurastyle_session_id', currentSessionId);
+        
+        // Reset message list
+        messagesContainer.innerHTML = `
+          <div class="message-row bot">
+            <div class="msg-avatar bot-av">A</div>
+            <div class="bubble-wrapper">
+              <div class="bubble">
+                <p><strong>Memory reset!</strong> Hello, I'm Aura from AuraStyle Essentials. How may I assist you with your orders, shipping, or policies today?</p>
+              </div>
+              <div class="meta-tag">Official Support • New Session Started</div>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        alert('Failed to reset session history');
+      }
+    }
+
+    // Modal controls for SQLite logs
+    async function openLogsModal() {
+      document.getElementById('logsModal').classList.add('active');
+      await refreshLogsAndStats();
+    }
+
+    function closeLogsModal() {
+      document.getElementById('logsModal').classList.remove('active');
+    }
+
+    function closeLogsModalOnBackdrop(e) {
+      if (e.target.id === 'logsModal') closeLogsModal();
+    }
+
+    async function refreshLogsAndStats() {
+      try {
+        const [analyticsRes, logsRes] = await Promise.all([
+          fetch('/api/analytics'),
+          fetch('/api/logs?limit=50')
+        ]);
+        const analytics = await analyticsRes.json();
+        const logsData = await logsRes.json();
+
+        document.getElementById('statMessages').textContent = analytics.total_messages;
+        document.getElementById('statSessions').textContent = analytics.total_sessions;
+        document.getElementById('statLatency').textContent = analytics.avg_latency_ms + ' ms';
+        document.getElementById('statTokens').textContent = analytics.sum_tokens;
+
+        const tbody = document.getElementById('logsTableBody');
+        tbody.innerHTML = '';
+        if (!logsData.logs || logsData.logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:18px;">No chat interactions logged in SQLite yet. Send a message to see live logs!</td></tr>';
+          return;
+        }
+
+        logsData.logs.forEach(log => {
+          const tr = document.createElement('tr');
+          const statusClass = log.status === 'success' ? 'tag-success' : (log.status === 'out_of_scope_refusal' ? 'tag-refusal' : 'tag-uncovered');
+          tr.innerHTML = `
+            <td>#${log.id}</td>
+            <td style="white-space:nowrap;">${log.timestamp ? log.timestamp.substring(11, 19) : ''}</td>
+            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(log.user_message)}">${escapeHtml(log.user_message)}</td>
+            <td style="max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(log.bot_response)}">${escapeHtml(log.bot_response)}</td>
+            <td><strong>${log.response_time_ms}ms</strong></td>
+            <td>${log.total_tokens}</td>
+            <td><span class="tag ${statusClass}">${log.status}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load logs', err);
+      }
+    }
+  </script>
+</body>
+</html>

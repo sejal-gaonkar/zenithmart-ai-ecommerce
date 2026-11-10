@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZenithMart</title>
+<style>
+:root{--navy:#0b1f4d;--blue:#2447d6;--bg:#f4f6fb;--tx:#14213d;--mu:#6b7280;--ok:#16a34a}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}
+.ann{background:var(--navy);color:#fff;text-align:center;font-size:13px;padding:8px}
+header{background:#fff;position:sticky;top:0;z-index:20;box-shadow:0 1px 8px #0001}
+.nav{max-width:1200px;margin:auto;display:flex;align-items:center;gap:20px;padding:12px 20px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:23px;color:var(--navy)}.logo b{color:var(--blue)}
+.nav a.l{font-weight:500;font-size:15px}.nav a.l:hover{color:var(--blue)}
+.nav input{flex:1;min-width:150px;padding:10px 14px;border:1px solid #d6dbe8;border-radius:24px}
+.cnt{background:var(--blue);color:#fff;border-radius:10px;font-size:11px;padding:1px 6px;margin-left:3px}
+main{max-width:1200px;margin:auto;padding:20px}h2{color:var(--navy);margin:34px 0 14px}
+.hero{background:linear-gradient(120deg,#0b1f4d,#2447d6);color:#fff;border-radius:24px;padding:64px 48px}
+.hero h1{font-size:44px;margin:0 0 12px;max-width:560px}.hero p{max-width:520px;opacity:.9}
+.btn{display:inline-block;background:var(--blue);color:#fff;border:0;border-radius:12px;padding:12px 22px;font-weight:600}
+.btn.w{background:#fff;color:var(--navy)}.btn.o{background:#fff;color:var(--blue);border:1px solid var(--blue)}.btn:hover{filter:brightness(1.08)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+.card{background:#fff;border-radius:18px;box-shadow:0 2px 14px #0b1f4d14;overflow:hidden;transition:.2s;position:relative}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 26px #0b1f4d26}
+.card img{width:100%;aspect-ratio:1;object-fit:cover;display:block}.card .b{padding:12px 14px 16px}
+.pr{font-weight:700}.mrp{color:var(--mu);text-decoration:line-through;font-size:13px;margin-left:6px}.rt{color:#b45309;font-size:13px}
+.heart{position:absolute;top:10px;right:10px;background:#fff;border:0;border-radius:50%;width:34px;height:34px;box-shadow:0 1px 6px #0003}
+.cat{background:#fff;border-radius:18px;padding:26px;text-align:center;font-weight:600;box-shadow:0 2px 14px #0b1f4d14}.cat span{font-size:38px;display:block}
+.box{background:#fff;border-radius:18px;padding:22px;box-shadow:0 2px 14px #0b1f4d14}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+input,select,textarea{padding:10px 12px;border:1px solid #d6dbe8;border-radius:10px;font:inherit;width:100%}
+.f{display:grid;gap:10px}.chip{border:1px solid #c7d0ea;background:#fff;border-radius:10px;padding:8px 14px}.chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;background:#e8eefc;color:var(--blue)}
+.steps{display:flex;gap:8px;margin:12px 0}.st{flex:1;text-align:center;padding:8px;border-radius:10px;background:#e5e7eb;font-size:13px}.st.on{background:var(--blue);color:#fff}
+table{width:100%;border-collapse:collapse}td,th{padding:10px;text-align:left;border-bottom:1px solid #eef0f6}
+footer{background:var(--navy);color:#cbd5f5;margin-top:50px;padding:32px 20px;text-align:center;font-size:14px}
+#chatbtn{position:fixed;right:20px;bottom:20px;background:var(--blue);color:#fff;border:0;border-radius:30px;padding:14px 20px;font-weight:600;box-shadow:0 6px 20px #0004;z-index:30}
+#chat{position:fixed;right:20px;bottom:80px;width:360px;max-width:calc(100% - 40px);height:480px;background:#fff;border-radius:18px;box-shadow:0 10px 40px #0005;display:none;flex-direction:column;overflow:hidden;z-index:30}
+#chat header{position:static;background:var(--navy);color:#fff;padding:14px;font-weight:600;box-shadow:none}
+#cl{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}.m{padding:9px 12px;border-radius:12px;max-width:85%;white-space:pre-wrap;font-size:14px}
+.m.u{align-self:flex-end;background:var(--blue);color:#fff}.m.b{background:#eef1fb}
+@media(max-width:760px){.two{grid-template-columns:1fr}.hero{padding:36px 24px}.hero h1{font-size:30px}}
+</style></head><body>
+<div class="ann">Free standard shipping on orders ₹499+ · ZenithFast delivery in 1–2 days for ₹99</div>
+<header><div class="nav"><a class="logo" href="#/">Zenith<b>Mart</b></a>
+<a class="l" href="#/">Home</a><a class="l" href="#/shop">Shop</a><a class="l" href="#/shop">Categories</a><a class="l" href="#/offers">Offers</a><a class="l" href="#/orders">My Orders</a>
+<input id="q" placeholder="Search products…"><a class="l" href="#/wishlist">♡ Wishlist<span class="cnt" id="wc">0</span></a>
+<a class="l" href="#/cart">🛒 Cart<span class="cnt" id="cc">0</span></a><a class="l" href="#/orders" title="Guest session (demo)">👤 Guest</a></div></header>
+<main id="app"></main>
+<footer><b>ZenithMart</b> · Demo catalogue for educational use · No real payments are processed · Never share card numbers, CVVs, passwords or OTPs</footer>
+<button id="chatbtn" onclick="tc()">💬 Ask Zara</button>
+<div id="chat"><header>Zara · ZenithMart Support</header><div id="cl"><div class="m b">Hi! I'm Zara. Ask me about orders, shipping, returns or products.</div></div>
+<form onsubmit="return sc(event)" class="row" style="padding:10px"><input id="ci" placeholder="Type a question…" autocomplete="off" style="flex:1"><button class="btn">Send</button></form></div>
+<script>
+const $=s=>document.querySelector(s),app=$('#app'),LS=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},SV=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),money=n=>'₹'+Number(n).toLocaleString('en-IN');
+const EM={Apparel:'👕',Footwear:'👟',Electronics:'🎧',Grooming:'🧴',Accessories:'⌚'},CATS=Object.keys(EM);
+let P=[],cart=LS('zm_cart',[]),wish=LS('zm_wish',[]),cust=LS('zm_cust',null),S={q:'',cat:'',hi:1000000,sort:''};
+if(!cust){cust='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);SV('zm_cust',cust)}
+const ph=(p,i)=>'data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="600" height="600" fill="${['#dbe4ff','#e6ecfb','#c9d6ff'][i%3]}"/><text x="300" y="340" font-size="170" text-anchor="middle">${EM[p.category]}</text></svg>`);
+const fb=(el,id,i)=>{el.onerror=null;el.src=ph(P.find(x=>x.id==id),i)};
+const img=(p,i=0)=>`<img loading="lazy" alt="${esc(p.name)}" src="/static/img/${p.id}${i?'-'+(i+1):''}.jpg" onerror="fb(this,'${p.id}',${i})">`;
+const api=async(u,o)=>{const r=await fetch(u,o);const d=await r.json();if(!r.ok)throw new Error(typeof d.detail=='string'?d.detail:'Please check the form fields');return d};
+const post=(u,b)=>api(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+function badges(){$('#cc').textContent=cart.reduce((a,c)=>a+c.qty,0);$('#wc').textContent=wish.length}
+function addCart(id,size,qty=1){const p=P.find(x=>x.id==id);if(p.sizes.length&&!size)return alert('Please choose a size');
+ const l=cart.find(c=>c.id==id&&c.size==size);l?l.qty=Math.min(10,l.qty+qty):cart.push({id,size,qty});SV('zm_cart',cart);badges();alert('Added to cart')}
+function tw(id){wish=wish.includes(id)?wish.filter(x=>x!=id):[...wish,id];SV('zm_wish',wish);badges();route()}
+function quick(id){const p=P.find(x=>x.id==id);p.sizes.length?location.hash='#/product/'+id:addCart(id,'')}
+const card=p=>`<div class="card"><button class="heart" onclick="tw('${p.id}')">${wish.includes(p.id)?'❤️':'♡'}</button><a href="#/product/${p.id}">${img(p)}</a><div class="b"><a href="#/product/${p.id}">${esc(p.name)}</a><div><span class="pr">${money(p.price)}</span>${p.mrp>p.price?`<span class="mrp">${money(p.mrp)}</span>`:''}</div><div class="rt">★ ${p.rating} <span style="color:var(--mu)">(demo)</span></div><button class="btn" style="margin-top:8px;padding:8px 14px" onclick="quick('${p.id}')">Add to Cart</button></div></div>`;
+const grid=a=>a.length?`<div class="grid">${a.map(card).join('')}</div>`:'<div class="box">No products found.</div>';
+const sh=a=>[...a].sort((x,y)=>y.rating-x.rating);
+function home(){app.innerHTML=`<div class="hero"><h1>Style, tech and everyday essentials.</h1><p>Discover apparel, footwear, electronics, grooming and accessories — with Zara, your AI support assistant, one tap away.</p><a class="btn w" href="#/shop">Shop Now</a> <a class="btn" style="background:#ffffff33" href="#/shop">Explore Categories</a></div>
+<h2>Featured categories</h2><div class="grid">${CATS.map(c=>`<a class="cat" href="#/shop/${c}"><span>${EM[c]}</span>${c}</a>`).join('')}</div>
+<h2>Trending products</h2>${grid(P.slice(0,4))}<h2>Best sellers</h2>${grid(sh(P).slice(0,4))}<h2>Special offers</h2>${grid(P.filter(p=>p.mrp>p.price).slice(0,4))}
+<h2>Why shop with ZenithMart</h2><div class="grid">${[['🚚','Free shipping','Standard delivery free on ₹499+'],['⚡','ZenithFast','1–2 day delivery for ₹99'],['↩️','Easy returns','On eligible products'],['🔒','Safe demo','No card details ever collected']].map(x=>`<div class="box"><div style="font-size:30px">${x[0]}</div><b>${x[1]}</b><p style="color:var(--mu)">${x[2]}</p></div>`).join('')}</div>
+<h2>Meet Zara, your support assistant</h2><div class="box two"><div><p>Zara answers questions on shipping, returns, cancellations and order status — any time.</p><button class="btn" onclick="tc()">Chat with Zara</button></div><div class="hero" style="padding:24px;border-radius:16px">“Where can I check my order status?” → My Orders, or just ask Zara.</div></div>
+<h2>New arrivals, no sign-up needed</h2><div class="box row" style="justify-content:space-between"><span>Browse the latest additions to our demo catalogue — no email required.</span><a class="btn o" href="#/shop">Browse new arrivals</a></div>`}
+async function shop(cat){if(cat!==undefined)S.cat=cat||'';const p=new URLSearchParams({q:S.q,category:S.cat,hi:S.hi,sort:S.sort});const list=await api('/api/products?'+p);
+ app.innerHTML=`<h2 style="margin-top:0">Shop</h2><div class="box row" style="margin-bottom:16px"><select id="fc" style="width:auto"><option value="">All categories</option>${CATS.map(c=>`<option ${S.cat==c?'selected':''}>${c}</option>`).join('')}</select><select id="fp" style="width:auto"><option value="1000000">Any price</option>${[500,1000,2000,3000].map(v=>`<option value="${v}" ${S.hi==v?'selected':''}>Under ${money(v)}</option>`).join('')}</select><select id="fs" style="width:auto">${[['','Featured'],['price_asc','Price: low to high'],['price_desc','Price: high to low'],['rating','Top rated']].map(o=>`<option value="${o[0]}" ${S.sort==o[0]?'selected':''}>${o[1]}</option>`).join('')}</select><button class="btn o" onclick="S={q:'',cat:'',hi:1000000,sort:''};$('#q').value='';shop('')">Clear filters</button><span style="color:var(--mu)">${list.length} products</span></div>${grid(list)}`;
+ $('#fc').onchange=e=>{S.cat=e.target.value;shop()};$('#fp').onchange=e=>{S.hi=e.target.value;shop()};$('#fs').onchange=e=>{S.sort=e.target.value;shop()}}
+let sel={size:'',qty:1};
+function product(id){const p=P.find(x=>x.id==id);if(!p)return app.innerHTML='<div class="box">Product not found.</div>';sel={size:'',qty:1};
+ const st=p.stock>10?'<span style="color:var(--ok)">In stock</span>':p.stock>0?`<span style="color:#b45309">Only ${p.stock} left</span>`:'<span style="color:#dc2626">Out of stock</span>';
+ app.innerHTML=`<div class="two"><div><div class="card">${img(p)}</div><div class="row" style="margin-top:10px">${[1,2].map(i=>`<div class="card" style="width:90px">${img(p,i)}</div>`).join('')}</div></div><div class="box"><span class="tag">${p.category} · ${esc(p.subcategory)}</span><h1 style="color:var(--navy)">${esc(p.name)}</h1><div class="rt">★ ${p.rating} (demo rating)</div><h2 style="margin:8px 0">${money(p.price)}${p.mrp>p.price?`<span class="mrp">${money(p.mrp)}</span>`:''}</h2><p>${esc(p.description)}</p><p>${st} · ${p.returnable?'Returnable':'Not returnable'}</p>
+ ${p.sizes.length?`<b>Size</b><div class="row" id="sz" style="margin:6px 0 12px">${p.sizes.map(s=>`<button class="chip" onclick="sel.size='${s}';document.querySelectorAll('#sz .chip').forEach(c=>c.classList.toggle('on',c.textContent=='${s}'))">${s}</button>`).join('')}</div>`:''}
+ <div class="row"><b>Qty</b><select id="qt" style="width:80px" onchange="sel.qty=+this.value">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><div class="row" style="margin-top:14px"><button class="btn" ${p.stock?'':'disabled'} onclick="addCart('${p.id}',sel.size,sel.qty)">Add to Cart</button><button class="btn o" onclick="tw('${p.id}')">${wish.includes(p.id)?'Remove from Wishlist':'Add to Wishlist'}</button></div>
+ <h3>Specifications</h3><ul>${p.specs.map(s=>`<li>${esc(s)}</li>`).join('')}</ul><h3>Ask Zara about this product</h3><div class="row">${['Is this returnable?','How fast can I get this delivered?','Do I get free shipping?'].map(q=>`<button class="chip" onclick="ask('${q} (${esc(p.name)})')">${q}</button>`).join('')}</div><p style="color:var(--mu);font-size:12px">Demo data: stock and ratings are fictional.</p></div></div><h2>Related products</h2>${grid(P.filter(x=>x.category==p.category&&x.id!=p.id).slice(0,4))}`}
+const totals=()=>{const sub=cart.reduce((a,c)=>a+P.find(p=>p.id==c.id).price*c.qty,0);return{sub,fee:sub>=499||!sub?0:49}};
+function cartPage(){if(!cart.length)return app.innerHTML='<div class="box">Your cart is empty. <a class="btn" href="#/shop">Start shopping</a></div>';const t=totals();
+ app.innerHTML=`<h2 style="margin-top:0">Your cart</h2><div class="two"><div class="box"><table>${cart.map((c,i)=>{const p=P.find(x=>x.id==c.id);return`<tr><td style="width:70px">${img(p)}</td><td>${esc(p.name)}<br><small>${c.size?'Size '+c.size:''}</small></td><td><button class="chip" onclick="cq(${i},-1)">−</button> ${c.qty} <button class="chip" onclick="cq(${i},1)">+</button></td><td>${money(p.price*c.qty)}</td><td><button class="chip" onclick="cart.splice(${i},1);SV('zm_cart',cart);badges();cartPage()">✕</button></td></tr>`}).join('')}</table></div>
+ <div class="box"><h3>Summary</h3><p>Subtotal: <b>${money(t.sub)}</b></p><p>Shipping (standard): <b>${t.fee?money(t.fee):'FREE'}</b></p><p>Total: <b>${money(t.sub+t.fee)}</b></p><small>ZenithFast (₹99) can be chosen at checkout.</small><br><br><a class="btn" href="#/checkout">Checkout</a></div></div>`}
+function cq(i,d){cart[i].qty=Math.max(1,Math.min(10,cart[i].qty+d));SV('zm_cart',cart);badges();cartPage()}
+function wishPage(){app.innerHTML=`<h2 style="margin-top:0">Wishlist</h2>${grid(P.filter(p=>wish.includes(p.id)))}`}
+function checkout(){if(!cart.length)return location.hash='#/cart';const t=totals();
+ app.innerHTML=`<h2 style="margin-top:0">Checkout</h2><div class="two"><form class="box f" onsubmit="return place(event)"><b>Delivery address (sample data only)</b><input name="name" placeholder="Full name" required minlength="2"><input name="phone" placeholder="10-digit mobile" required pattern="\\d{10}"><textarea name="address" placeholder="Address" required minlength="5"></textarea><input name="city" placeholder="City" required><input name="pincode" placeholder="6-digit pincode" required pattern="\\d{6}"><b>Shipping</b><label><input type="radio" name="shipping" value="standard" checked style="width:auto"> Standard 3–5 days — ${t.fee?money(t.fee):'FREE'}</label><label><input type="radio" name="shipping" value="fast" style="width:auto"> ZenithFast 1–2 days — ₹99</label><b>Payment</b><label><input type="radio" checked style="width:auto"> Simulated payment (demo) — no real payment, no card details</label><button class="btn">Place demo order</button><div id="err" style="color:#dc2626"></div></form>
+ <div class="box"><h3>Order summary</h3>${cart.map(c=>{const p=P.find(x=>x.id==c.id);return`<p>${esc(p.name)} ${c.size?'('+c.size+')':''} × ${c.qty} — ${money(p.price*c.qty)}</p>`}).join('')}<hr><p>Subtotal ${money(t.sub)}</p></div></div>`}
+async function place(e){e.preventDefault();const f=new FormData(e.target),b=Object.fromEntries(f);b.cust=cust;b.items=cart.map(c=>({product_id:c.id,qty:c.qty,size:c.size}));
+ try{const r=await post('/api/orders',b);cart=[];SV('zm_cart',cart);badges();location.hash='#/order/'+r.order_id+'/new';P=await api('/api/products')}catch(x){$('#err').textContent=x.message}return false}
+const badge=s=>`<span class="tag">${s}</span>`;
+async function orders(){const o=await api('/api/orders?cust='+cust);app.innerHTML=`<h2 style="margin-top:0">My Orders</h2>${o.length?`<div class="box"><table><tr><th>Order</th><th>Date</th><th>Total</th><th>Status</th><th></th></tr>${o.map(x=>`<tr><td>${x.order_id}</td><td>${x.created_at.slice(0,10)}</td><td>${money(x.total)}</td><td>${badge(x.status)}</td><td><a class="btn o" href="#/order/${x.order_id}">Details</a></td></tr>`).join('')}</table></div>`:'<div class="box">No orders yet. Place a demo order to see it here.</div>'}`}
+async function orderPage(id,isNew){const o=await api(`/api/orders/${id}?cust=${cust}`),L=['Pending','Shipped','Delivered'],ix=L.indexOf(o.status);
+ const refund=['Cancelled'].includes(o.status)||o.requests.some(r=>r.type=='return')?`<p><b>Refund:</b> ${money(o.total)} to the original method in 5–7 business days (demo).</p>`:'';
+ app.innerHTML=`${isNew?`<div class="box" style="background:#ecfdf5;margin-bottom:16px"><b>🎉 Demo order placed!</b> Your order ID is <b>${o.order_id}</b>.</div>`:''}<h2 style="margin-top:0">Order ${o.order_id}</h2><div class="box"><p>Tracking ID: <b>${o.tracking}</b> · ${badge(o.status)} · ${o.payment}</p>${o.status=='Cancelled'?'':`<div class="steps">${L.map((s,i)=>`<div class="st ${i<=ix?'on':''}">${s}</div>`).join('')}</div>`}
+ <table>${o.items.map(i=>`<tr><td>${esc(i.name)} ${i.size?'('+i.size+')':''} × ${i.qty}</td><td>${money(i.price*i.qty)}</td></tr>`).join('')}<tr><td>Shipping (${o.shipping})</td><td>${o.ship_fee?money(o.ship_fee):'FREE'}</td></tr><tr><td><b>Total</b></td><td><b>${money(o.total)}</b></td></tr></table><p>Deliver to: ${esc(o.name)}, ${esc(o.address)}, ${esc(o.city)} ${o.pincode}</p>${refund}
+ <div class="row">${o.status=='Pending'?`<button class="btn o" onclick="rq('${o.order_id}','cancel')">Request cancellation</button>`:''}${o.status=='Delivered'?`<button class="btn o" onclick="rq('${o.order_id}','return')">Request return</button><button class="btn o" onclick="rq('${o.order_id}','exchange')">Request exchange</button>`:''}${ix>=0&&ix<2?`<button class="chip" onclick="adv('${o.order_id}')">Demo: advance status →</button>`:''}</div>
+ ${o.requests.length?`<h3>Requests</h3>${o.requests.map(r=>`<p>${r.type} — ${badge(r.status)} — ${esc(r.reason)}</p>`).join('')}`:''}</div>`}
+async function adv(id){try{await post(`/api/orders/${id}/advance`,{cust});orderPage(id)}catch(e){alert(e.message)}}
+async function rq(id,kind){const reason=prompt('Reason for '+kind+'?');if(!reason)return;try{await post(`/api/orders/${id}/request`,{cust,kind,reason});orderPage(id)}catch(e){alert(e.message)}}
+async function route(){const[h,a,b]=(location.hash||'#/').slice(2).split('/');window.scrollTo(0,0);
+ try{if(h==''||h==undefined)home();else if(h=='shop')await shop(a);else if(h=='offers')app.innerHTML=`<h2 style="margin-top:0">Special offers</h2>${grid(P.filter(p=>p.mrp>p.price))}`;else if(h=='product')product(a);else if(h=='cart')cartPage();else if(h=='wishlist')wishPage();else if(h=='checkout')checkout();else if(h=='orders')await orders();else if(h=='order')await orderPage(a,b=='new');else home()}catch(e){app.innerHTML=`<div class="box">Something went wrong: ${esc(e.message)}</div>`}}
+$('#q').addEventListener('keydown',e=>{if(e.key=='Enter'){S.q=e.target.value;location.hash=location.hash=='#/shop'?'#/shop/':'#/shop';route()}});
+function tc(){const c=$('#chat');c.style.display=c.style.display=='flex'?'none':'flex'}
+function ask(q){$('#chat').style.display='flex';$('#ci').value=q;sc()}
+function msg(t,c){const d=document.createElement('div');d.className='m '+c;d.textContent=t;$('#cl').appendChild(d);$('#cl').scrollTop=1e9;return d}
+async function sc(e){if(e)e.preventDefault();const t=$('#ci').value.trim();if(!t)return false;$('#ci').value='';msg(t,'u');const w=msg('Zara is typing…','b');
+ try{const r=await post('/api/chat',{message:t,session_id:cust});w.textContent=r.response}catch(x){w.textContent='Sorry, I could not reach support right now.'}return false}
+(async()=>{P=await api('/api/products');badges();route()})();window.addEventListener('hashchange',route);
+</script></body></html>
