@@ -1,8 +1,7 @@
 """
-database.py - SQLite Chat Logging & Analytics for AuraStyle E-Commerce Assistant
-Stores conversation logs, timestamps, latency (ms), and token metrics with connection management.
+database.py - SQLite chat logging and analytics for the ZenithMart assistant.
+Stores conversation logs, timestamps, response latency, token metrics, and status.
 """
-
 import sqlite3
 import os
 from contextlib import contextmanager
@@ -26,7 +25,7 @@ def db_session():
         conn.close()
 
 def init_db() -> None:
-    """Initialize SQLite tables for chat interactions and sessions."""
+    """Initialize tables for chat interactions and sessions."""
     with db_session() as conn:
         cursor = conn.cursor()
         cursor.execute("""
@@ -62,7 +61,7 @@ def log_interaction(
     status: str = "success",
     error_details: Optional[str] = None
 ) -> int:
-    """Logs a single conversation turn to SQLite."""
+    """Log one conversation turn to SQLite."""
     timestamp = datetime.now(timezone.utc).isoformat()
     with db_session() as conn:
         cursor = conn.cursor()
@@ -80,45 +79,37 @@ def log_interaction(
         return cursor.lastrowid
 
 def get_session_history(session_id: str, limit: int = 50) -> List[Dict[str, Any]]:
-    """Retrieves chronological conversation history for a given session."""
+    """Retrieve chronological conversation history for a session."""
     with db_session() as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT id, session_id, timestamp, user_message, bot_response,
                    response_time_ms, prompt_tokens, completion_tokens, total_tokens, status
-            FROM chat_logs
-            WHERE session_id = ?
-            ORDER BY id ASC
-            LIMIT ?
+            FROM chat_logs WHERE session_id = ? ORDER BY id ASC LIMIT ?
         """, (session_id, limit))
-        rows = cursor.fetchall()
-        return [dict(row) for row in rows]
+        return [dict(row) for row in cursor.fetchall()]
 
 def get_all_logs(limit: int = 100) -> List[Dict[str, Any]]:
-    """Retrieves recent logs across all sessions for audit and analytics."""
+    """Retrieve recent logs across all sessions for audit and analytics."""
     with db_session() as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT id, session_id, timestamp, user_message, bot_response,
                    response_time_ms, prompt_tokens, completion_tokens, total_tokens, status, error_details
-            FROM chat_logs
-            ORDER BY id DESC
-            LIMIT ?
+            FROM chat_logs ORDER BY id DESC LIMIT ?
         """, (limit,))
-        rows = cursor.fetchall()
-        return [dict(row) for row in rows]
+        return [dict(row) for row in cursor.fetchall()]
 
 def get_analytics_summary() -> Dict[str, Any]:
-    """Retrieves quick summary metrics from the chat log database."""
+    """Retrieve summary metrics from the chat log database."""
     with db_session() as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT 
-                COUNT(*) as total_messages,
-                COUNT(DISTINCT session_id) as total_sessions,
-                AVG(response_time_ms) as avg_latency_ms,
-                SUM(total_tokens) as sum_tokens,
-                SUM(CASE WHEN status != 'success' THEN 1 ELSE 0 END) as error_count
+            SELECT COUNT(*) as total_messages,
+                   COUNT(DISTINCT session_id) as total_sessions,
+                   AVG(response_time_ms) as avg_latency_ms,
+                   SUM(total_tokens) as sum_tokens,
+                   SUM(CASE WHEN status != 'success' THEN 1 ELSE 0 END) as error_count
             FROM chat_logs
         """)
         row = cursor.fetchone()
@@ -131,7 +122,7 @@ def get_analytics_summary() -> Dict[str, Any]:
         }
 
 def clear_session(session_id: str) -> int:
-    """Clears history for a specific session."""
+    """Delete chat history for a specific session."""
     with db_session() as conn:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM chat_logs WHERE session_id = ?", (session_id,))
